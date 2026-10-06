@@ -20,7 +20,7 @@ See [`docs/SETUP.md`](docs/SETUP.md). The website document root must point to `p
 - `CommercialRules` enforces the 500-piece catalogue/poster MOQ, 1/2/4 color values, exact approved price lookup, and the PKR 2,500 A3 sticker/label sheet base price without multiplying it into a total.
 - UV printing and UV DTF are recorded as commonly used process guidance; no product-specific process or surface compatibility is approved by that note.
 - Product listing requires separate production approval, public visibility approval, and published status.
-- Upload handling is not enabled. Quote submissions collect text only. Artwork can be added after file policy and private storage are configured.
+- Quote intake accepts up to five PDF, PNG, JPEG, TIFF, or EPS files (25 MB each by default). Uploads receive MIME/size checks, random storage names, private permissions, and admin-authenticated downloads. Configure `UPLOAD_DIR` to a writable location outside `public/`.
 
 ## Available routes
 
