@@ -1,0 +1,24 @@
+Options -Indexes
+DirectoryIndex hdc-reloaded-app/public/index.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Block direct HTTP access to repository notes and private application areas.
+  RewriteRule ^(?:README\.md|HDC_PRINTING_WEBSITE_SYSTEM_AND_RESPONSIVE_TEMPLATES\.md|ORVIA_HDC_PRINTING_PRODUCT_DESCRIPTIONS_DRAFT\.md|hdc-backend-logic\.zip)$ - [F,L,NC]
+  RewriteRule ^hdc-reloaded-app/(?:app|bin|database|storage|tests|docs)(?:/|$) - [F,L,NC]
+  RewriteRule ^hdc-reloaded-app/(?:\.env(?:\..*)?|package(?:-lock)?\.json|README\.md)$ - [F,L,NC]
+
+  # Serve the application's public assets from the repository's nested public directory.
+  RewriteRule ^assets/(.*)$ hdc-reloaded-app/public/assets/$1 [L]
+
+  # Allow the internally-routed public entry point/assets to resolve without recursion.
+  RewriteRule ^hdc-reloaded-app/public/(?:index\.php|assets/.*|\.htaccess)$ - [L]
+
+  # Route all application URLs to the PHP front controller while preserving the original REQUEST_URI.
+  RewriteRule ^ hdc-reloaded-app/public/index.php [QSA,L]
+</IfModule>
+
+<FilesMatch "^\.(?!well-known)">
+  Require all denied
+</FilesMatch>
