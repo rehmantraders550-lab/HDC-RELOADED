@@ -17,4 +17,4 @@ function route_path(): string { $p=parse_url($_SERVER['REQUEST_URI']??'/',PHP_UR
 function redirect(string $u): never { header('Location: '.$u,true,303);exit; }
 function flash(string $t): void { start_secure_session();$_SESSION['flash']=$t; }
 function take_flash(): string { start_secure_session();$s=(string)($_SESSION['flash']??'');unset($_SESSION['flash']);return $s; }
-function product_by_slug(string $slug): ?array { $q=db()->prepare('SELECT p.* FROM products p WHERE p.slug=? AND p.status='published' AND p.public_visibility=1 AND p.production_approved=1 AND EXISTS (SELECT 1 FROM configuration_profiles cp WHERE cp.product_id=p.id AND cp.approved=1) LIMIT 1');$q->execute([$slug]);return $q->fetch()?:null; }
+function product_by_slug(string $slug): ?array { $q=db()->prepare("SELECT p.* FROM products p WHERE p.slug=? AND p.status='published' AND p.public_visibility=1 AND p.production_approved=1 AND EXISTS (SELECT 1 FROM configuration_profiles cp WHERE cp.product_id=p.id AND cp.approved=1) LIMIT 1");$q->execute([$slug]);return $q->fetch()?:null; }
