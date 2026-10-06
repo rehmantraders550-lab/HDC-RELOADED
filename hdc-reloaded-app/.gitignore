@@ -1,6 +1,0 @@
-.env
-/storage/private-artwork/*
-!/storage/private-artwork/.gitkeep
-/storage/logs/*
-!/storage/logs/.gitkeep
-/vendor/
