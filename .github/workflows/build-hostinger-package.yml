@@ -1,0 +1,74 @@
+name: Build Hostinger deployment package
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/build-hostinger-package.yml"
+      - ".htaccess"
+      - "hdc-reloaded-app/**"
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Assemble Hostinger package
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf hostinger-package
+          mkdir -p hostinger-package/hdc-reloaded-app
+          cp .htaccess hostinger-package/.htaccess
+          cp hdc-reloaded-app/.htaccess hostinger-package/hdc-reloaded-app/.htaccess
+          cp hdc-reloaded-app/.env.example hostinger-package/hdc-reloaded-app/.env.example
+          cp -R hdc-reloaded-app/app hostinger-package/hdc-reloaded-app/
+          cp -R hdc-reloaded-app/bin hostinger-package/hdc-reloaded-app/
+          cp -R hdc-reloaded-app/database hostinger-package/hdc-reloaded-app/
+          cp -R hdc-reloaded-app/public hostinger-package/hdc-reloaded-app/
+          cp -R hdc-reloaded-app/storage hostinger-package/hdc-reloaded-app/
+          mkdir -p hostinger-package/hdc-reloaded-app/storage/private-artwork
+          cat > hostinger-package/UPLOAD-INSTRUCTIONS.txt <<'EOF'
+          HDC HOSTINGER PACKAGE
+          =====================
+          Upload this ZIP to the root of the new website's public_html directory and extract it there.
+
+          After extraction, public_html must contain:
+            .htaccess
+            hdc-reloaded-app/
+              .htaccess
+              .env.example
+              app/
+              bin/
+              database/
+              public/
+              storage/
+
+          Then:
+          1. Set PHP to 8.2 or newer.
+          2. Create a MySQL/MariaDB database in Hostinger.
+          3. Copy hdc-reloaded-app/.env.example to hdc-reloaded-app/.env and enter the real production values.
+          4. Run the existing migration/seed scripts once the database credentials are configured.
+          5. Keep APP_DEBUG=false in production.
+
+          Do not expose the app/, bin/, database/, or storage/ directories publicly.
+          EOF
+
+      - name: Create ZIP
+        shell: bash
+        run: |
+          cd hostinger-package
+          zip -r ../HDC-HOSTINGER-DEPLOY.zip . -x "*.DS_Store"
+
+      - name: Upload deployment ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: HDC-HOSTINGER-DEPLOY
+          path: HDC-HOSTINGER-DEPLOY.zip
+          if-no-files-found: error
+          retention-days: 30
