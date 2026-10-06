@@ -22,7 +22,7 @@ Adapt the host and permissions to your provider's database panel.
 
 Copy `.env.example` to `.env`. Fill in the database host/name/user/password and set `APP_URL` and a random `APP_KEY` of at least 32 characters. Keep `.env` private and out of GitHub. Do not paste production credentials into chat, tickets, or commits.
 
-Keep `storage/private-artwork/` outside the web document root. It is reserved for future artwork policy; uploads are not enabled in this version.
+The quote form accepts artwork files and stores them outside the `public/` document root by default at `storage/private-artwork/`. Keep that directory private and writable by PHP. If the host requires a different path, set `UPLOAD_DIR` to an absolute private directory or an app-root-relative directory outside `public/`; the admin download route reads from this same configured location.
 
 ## 4. Run migrations and seed data
 
@@ -50,10 +50,10 @@ Catalogues and posters require at least 500 pieces and 1, 2 or 4 print colors. T
 
 ## 7. Before launch
 
-Runtime checks still required: PHP syntax, migration/seed against the selected MySQL/MariaDB version, hidden admin creation, successful/failed login, CSRF rejection, quote persistence and status update, publication gating, exact price lookup, HTTPS cookie behavior, and keyboard/mobile browser checks. Price rows are entered as canonical JSON through the admin matrix form; all submitted configuration fields must match the approved row exactly. Add rate limiting, email delivery, retention/backup policy, and the approved private artwork upload flow before enabling uploads or treating the quote inbox as production-ready.
+Runtime checks still required: PHP syntax, migration/seed against the selected MySQL/MariaDB version, hidden admin creation, successful/failed login, CSRF rejection, quote persistence and status update, publication gating, exact price lookup, HTTPS cookie behavior, and keyboard/mobile browser checks. Price rows are entered as canonical JSON through the admin matrix form; all submitted configuration fields must match the approved row exactly. Before relying on the quote inbox in production, run the documented runtime checks, verify upload limits and private-directory permissions, and configure the required notification, retention, and backup policies. Quote rate limiting and private artwork handling are implemented, but still require runtime verification on the target host. If a database save fails after private files are stored, those files are retained for administrator review; automated cleanup is intentionally disabled.
 
 ## Artwork intake settings
 
-The quote form accepts up to five PDF, PNG, JPEG, TIFF, or EPS files (25 MB each by default). PHP must have `fileinfo`; set `upload_max_filesize` to at least `25M` and `post_max_size` to at least `130M`. The app checks the actual MIME type, creates random storage names, sets private file permissions, and stores only file metadata and references in MySQL. Files stay outside `public/`. Admin downloads require an authenticated session and are sent as attachments with `nosniff`; downloads are audited. Set `UPLOAD_DIR` to a private writable folder outside the document root if the Hostinger plan permits it. Do not enable public artwork previews.
+The quote form accepts up to five PDF, PNG, JPEG, TIFF, or EPS files (25 MB each by default). PHP must have `fileinfo`; set `upload_max_filesize` to at least `25M` and `post_max_size` to at least `130M`. The app checks the actual MIME type, creates random storage names, sets private file permissions, and stores only file metadata and references in MySQL. Files stay outside `public/`. Admin downloads require an authenticated session and are sent as attachments with `nosniff`; downloads are audited. Set `UPLOAD_DIR` to a private writable folder outside the document root when the hosting layout requires a custom location; both upload storage and authenticated downloads use this configured path. Do not enable public artwork previews.
 
 Admin quote export is a private CSV download. The review desk can update request status and create a separate job record after a request has been marked `quoted`. Job records begin with customer approval pending; status changes are audited. CSV export includes quote and current job state.
